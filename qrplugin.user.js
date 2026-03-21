@@ -11,7 +11,7 @@
 // @match        https://*.pos-admin.vip.vip.com/*
 // @icon         https://cdn-icons.flaticon.com/svg/3917033.svg
 // @require      https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js
-// @downloadURL http://www.lcjscript.asia/qrplugin.user.js
+// @downloadURL  http://www.lcjscript.asia/qrplugin.user.js
 // ==/UserScript==
 
 (function() {
