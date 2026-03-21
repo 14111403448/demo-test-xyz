@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://haohuo.jinritemai.com/*
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @author      LCJ
 // @icon        https://p-pc-weboff.byteimg.com/tos-cn-i-9r5gewecjs/favicon.png
 // @downloadURL http://www.lcjscript.asia/DM.user.js
