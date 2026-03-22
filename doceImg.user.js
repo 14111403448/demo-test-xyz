@@ -4,7 +4,7 @@
 // @version      1.2
 // @description  复制图片链接后，按复制快捷键触发，预览以.png或.jpg结尾的图片
 // @author       LCJ
-// @match        https://.corp.vipshop.com/*
+// @match        https://*.corp.vipshop.com/*
 // @grant        none
 // @downloadURL  http://www.lcjscript.asia/doceImg.user.js
 // @run-at       document-end
