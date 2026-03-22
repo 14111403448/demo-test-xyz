@@ -4,7 +4,7 @@
 // @version      1.9
 // @description  文档页按Ctrl+C生成二维码，得物链接强制转化+特殊链接不优化，支持天猫国际、京东、拼多多链接优化，二维码图片可拖动+临时消失开关+自定义位置不重置
 // @author       LCJ
-// @match        https://docs.corp.vipshop.com/*
+// @match        https://*.corp.vipshop.com/*
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
