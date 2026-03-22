@@ -10,7 +10,7 @@
 // @grant        GM_getValue
 // @require      https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js
 // @icon         https://img.alicdn.com/imgextra/i3/O1CN01CkZbKp27arsx4ktdK_!!6000000007814-2-tps-96-96.png
-// @downloadURL  http://www.lcjscript.asia/doceqr.user.js
+// @downloadURL  https://www.lcjscript.asia/doceqr.user.js
 // ==/UserScript==
 (function() {
     'use strict';
