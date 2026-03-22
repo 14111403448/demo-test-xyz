@@ -7,6 +7,7 @@
 // @match        https://*.corp.vipshop.com/*
 // @grant        none
 // @downloadURL  https://www.lcjscript.asia/doceImg.user.js
+// @updateURL    https://www.lcjscript.asia/doceImg.user.js
 // @run-at       document-end
 // ==/UserScript==
 
