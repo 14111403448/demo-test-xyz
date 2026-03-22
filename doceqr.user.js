@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         文档链接二维码生成器
 // @namespace    Violentmonkey Scripts
-// @version      1.9
-// @description  文档页按Ctrl+C生成二维码，得物链接强制转化+特殊链接不优化，支持天猫国际、京东、拼多多链接优化，二维码图片可拖动+临时消失开关+自定义位置不重置
+// @version      2.0
+// @description  文档页按Ctrl+C生成二维码，支持自动模式（优先原始链接，失败自动切换优化链接），支持天猫国际、京东、拼多多、得物链接优化，二维码图片可拖动+临时消失开关+自定义位置
 // @author       LCJ
 // @match        https://*.corp.vipshop.com/*
 // @grant        GM_addStyle
@@ -38,8 +38,8 @@
     // 配置模块
     const ConfigModule = {
         STORAGE_KEYS: {
-            BASE_CONFIG: 'qrConfig_v1.9',
-            CUSTOM_POS: 'qrCustomPos_v1.9'
+            BASE_CONFIG: 'doceqr_config',
+            CUSTOM_POS: 'doceqr_position'
         },
         DEFAULT_CONFIG: {
             size: 100,
@@ -68,7 +68,7 @@
             const sanitizedConfig = {
                 size: Math.max(50, Math.min(200, config.size || 100)),
                 position: ['leftBottom', 'rightBottom', 'custom'].includes(config.position) ? config.position : 'rightBottom',
-                linkMode: ['original', 'optimized'].includes(config.linkMode) ? config.linkMode : 'original',
+                linkMode: ['original', 'optimized', 'auto'].includes(config.linkMode) ? config.linkMode : 'original',
                 enableQrImageDrag: Boolean(config.enableQrImageDrag),
                 enableHoverHide: Boolean(config.enableHoverHide),
                 enableQrCode: Boolean(config.enableQrCode),
@@ -193,10 +193,10 @@
             try {
                 const parsedUrl = new URL(url);
                 const path = parsedUrl.pathname.toLowerCase();
-                return path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg');
+                return path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.gif') || path.endsWith('.webp') || path.endsWith('.svg') || path.endsWith('.bmp');
             } catch (e) {
                 const lowerUrl = url.toLowerCase();
-                return lowerUrl.endsWith('.png') || lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg');
+                return lowerUrl.endsWith('.png') || lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg') || lowerUrl.endsWith('.gif') || lowerUrl.endsWith('.webp') || lowerUrl.endsWith('.svg') || lowerUrl.endsWith('.bmp');
             }
         },
 
@@ -644,7 +644,8 @@
         clearAllTimers();
         if (qrContainer) qrContainer.remove();
 
-        const finalUrl = UrlProcessor.processUrl(originalUrl, config.linkMode);
+        let currentMode = config.linkMode;
+        let finalUrl = UrlProcessor.processUrl(originalUrl, currentMode);
 
         qrContainer = document.createElement('div');
         qrContainer.className = 'vip-qr-container';
@@ -657,7 +658,7 @@
         `;
         document.body.appendChild(qrContainer);
 
-        try {
+        const generateQrCode = () => {
             const size = calculateSize(config.size);
             try {
                 new QRCode(document.getElementById(qrId), {
@@ -677,12 +678,22 @@
                 }
                 
                 setQrDragable(qrContainer, config.enableQrImageDrag);
+                return true;
             } catch (e) {
+                if (currentMode === 'auto') {
+                    currentMode = 'optimized';
+                    finalUrl = UrlProcessor.processUrl(originalUrl, currentMode);
+                    document.getElementById(qrId).innerHTML = '';
+                    return false;
+                }
                 handleError(e, '二维码生成失败');
                 qrContainer.querySelector('.vip-qr-code').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: red;">生成失败</div>';
+                return false;
             }
-        } catch (e) {
-            handleError(e, '二维码生成初始化失败');
+        };
+
+        if (!generateQrCode()) {
+            generateQrCode();
         }
 
         applyPosition(qrContainer);
@@ -718,8 +729,8 @@
         document.addEventListener('mousedown', (e) => {
             // 处理二维码图片/画布拖拽
             const qrCode = e.target.closest('.vip-qr-code');
-            const qrContainer = qrCode?.closest('.vip-qr-container');
-            if (qrCode && qrContainer) {
+            const clickedContainer = qrCode?.closest('.vip-qr-container');
+            if (qrCode && clickedContainer) {
                 const isImageCanvas = e.target.tagName === 'IMG' || e.target.tagName === 'CANVAS';
                 if (isImageCanvas && ConfigModule.getBaseConfig().enableQrImageDrag) {
                     return;
@@ -938,8 +949,9 @@
             <div class="vip-qr-settings-group">
                 <label class="vip-qr-settings-label">链接模式</label>
                 <div class="vip-qr-settings-options link-mode-options">
-                    <div class="vip-qr-settings-option ${config.linkMode === 'optimized' ? 'active' : ''}" data-mode="optimized">优化链接</div>
-                    <div class="vip-qr-settings-option ${config.linkMode === 'original' ? 'active' : ''}" data-mode="original">原始链接</div>
+                    <div class="vip-qr-settings-option ${config.linkMode === 'auto' ? 'active' : ''}" data-mode="auto" title="优先使用原始链接生成二维码，若失败则自动切换为优化链接">自动模式</div>
+                    <div class="vip-qr-settings-option ${config.linkMode === 'original' ? 'active' : ''}" data-mode="original" title="使用原始链接生成二维码，部分链接会自动转成手机app可识别的地址">原始链接</div>
+                    <div class="vip-qr-settings-option ${config.linkMode === 'optimized' ? 'active' : ''}" data-mode="optimized" title="使用清理冗余参数后的短链接生成二维码">优化链接</div>
                 </div>
             </div>
             <div class="vip-qr-settings-group">
