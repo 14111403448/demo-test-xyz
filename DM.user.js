@@ -8,7 +8,7 @@
 // @icon        https://p-pc-weboff.byteimg.com/tos-cn-i-9r5gewecjs/favicon.png
 // @description 抖音商品链接自动重定向，统一添加 origin_type=pc_buyin_group 参数
 // @downloadURL https://www.lcjscript.asia/DM.user.js
-// @updateURL  https://www.lcjscript.asia/DM.user.js
+// @updateURL   https://www.lcjscript.asia/DM.user.js
 // ==/UserScript==
 
 (function() {
