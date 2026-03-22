@@ -6,7 +6,7 @@
 // @version     1.0
 // @author      LCJ
 // @icon        https://p-pc-weboff.byteimg.com/tos-cn-i-9r5gewecjs/favicon.png
-// @downloadURL http://www.lcjscript.asia/DM.user.js
+// @downloadURL https://www.lcjscript.asia/DM.user.js
 // ==/UserScript==
 
 (function() {
