@@ -338,7 +338,7 @@
             left = left < 0 ? 0 : left;
             top = top < 0 ? 0 : top;
             left = left + qrContainerSize > viewportWidth ? viewportWidth - qrContainerSize : left;
-            top = top + qrContainerSize > viewportHeight ? viewportHeight - qrContainerSize : left;
+            top = top + qrContainerSize > viewportHeight ? viewportHeight - qrContainerSize : top;
             return { left, top };
         }
 
