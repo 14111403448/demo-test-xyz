@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw 隧道命令生成工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f7f8fa;
+            padding: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        h3 {
+            font-size: 16px;
+            margin: 16px 0 10px;
+            color: #333;
+        }
+
+        .form-item {
+            margin-bottom: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e5e6eb;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input:focus {
+            border-color: #2d8cf0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            background: #2d8cf0;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .command {
+            background: #2b2d30;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 14px;
+            cursor: pointer;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>OpenClaw 反向隧道命令生成</h2>
+
+    <div class="container">
+        <div class="form-item">
+            <input type="text" id="adb" placeholder="手机 ADB 端口">
+        </div>
+        <div class="form-item">
+            <input type="text" id="mapport" placeholder="服务器映射端口">
+        </div>
+        <div class="form-item">
+            <input type="text" id="ip" placeholder="服务器公网 IP">
+        </div>
+        <button class="btn" onclick="generate()">生成全部命令</button>
+    </div>
+
+    <div class="container">
+        <h3>1. 安装依赖</h3>
+        <div class="command" onclick="copy(this)">pkg update -y && pkg install -y android-tools openssh autossh</div>
+
+        <h3>2. 生成 SSH 密钥</h3>
+        <div class="command" onclick="copy(this)">ssh-keygen -t ed25519</div>
+
+        <h3>3. 上传公钥（免密登录）</h3>
+        <div class="command" id="cmd1" onclick="copy(this)"></div>
+
+        <h3>4. 开启 ADB 调试</h3>
+        <div class="command" id="cmd2" onclick="copy(this)"></div>
+        <div class="command" id="cmd3" onclick="copy(this)"></div>
+
+        <h3>5. 启动 AutoSSH 隧道</h3>
+        <div class="command" id="cmd4" onclick="copy(this)"></div>
+
+        <h3>6. OpenClaw 连接地址</h3>
+        <div class="command" id="cmd5" onclick="copy(this)"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+<script>
+let toastTimer;
+
+function generate() {
+    let adb = document.getElementById('adb').value.trim();
+    let mapport = document.getElementById('mapport').value.trim();
+    let ip = document.getElementById('ip').value.trim();
+    let user = 'ubuntu';
+
+    document.getElementById('cmd1').innerText = adb && mapport && ip ? `ssh-copy-id ${user}@${ip}` : '';
+    document.getElementById('cmd2').innerText = adb ? `adb tcpip ${adb}` : '';
+    document.getElementById('cmd3').innerText = adb ? `adb connect 127.0.0.1:${adb}` : '';
+    document.getElementById('cmd4').innerText = adb && mapport && ip ? `autossh -M 20000 -N -R ${mapport}:localhost:${adb} ${user}@${ip}` : '';
+    document.getElementById('cmd5').innerText = mapport ? `127.0.0.1:${mapport}` : '';
+}
+
+function copy(el) {
+    let text = el.innerText.trim();
+    if (!text) {
+        showToast("请先生成命令");
+        return;
+    }
+    navigator.clipboard.writeText(text);
+    showToast("已复制");
+}
+
+function showToast(msg) {
+    let toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 1500);
+}
+</script>
+
+</body>
+</html>
