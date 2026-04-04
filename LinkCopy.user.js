@@ -15,9 +15,9 @@
     'use strict';
 
     const CONFIG = {
-        btnText: "复制",          
-        btnOffsetTop: 2,          
-        btnOffsetRight: 2,        
+        btnText: "复制",
+        btnOffsetTop: 2,
+        btnOffsetRight: 2,
         // 黑名单区域 - 这些区域内的链接不会生成按钮，按需增删
         elementBlacklist: [
             "div.el-scrollbar__view",
