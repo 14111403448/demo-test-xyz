@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         全局链接二维码生成器
 // @namespace    http://tampermonkey.net/
-// @version      2.3
+// @version      2.3.1
 // @description  鼠标悬停带href属性的元素显示二维码，支持得物链接转换、大小/位置/链接模式设置，按+号放大二维码至屏幕60%高度
 // @grant        GM_addStyle
 // @grant        GM_setValue
