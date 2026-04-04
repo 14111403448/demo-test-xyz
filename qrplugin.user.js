@@ -684,6 +684,43 @@
         });
     };
 
+    // 设置弹窗拖拽逻辑
+    document.addEventListener('mousedown', (e) => {
+        const modal = e.target.closest('.vip-qr-settings-modal');
+        if (modal) {
+            isDraggingModal = true;
+            const rect = modal.getBoundingClientRect();
+            modalDragOffset.x = e.clientX - rect.left;
+            modalDragOffset.y = e.clientY - rect.top;
+            // 移除 transform 居中，改为绝对定位以支持拖拽
+            modal.style.transform = 'none';
+            modal.style.left = `${rect.left}px`;
+            modal.style.top = `${rect.top}px`;
+            modal.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDraggingModal) {
+            const modal = document.querySelector('.vip-qr-settings-modal');
+            if (modal) {
+                modal.style.left = `${e.clientX - modalDragOffset.x}px`;
+                modal.style.top = `${e.clientY - modalDragOffset.y}px`;
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDraggingModal) {
+            isDraggingModal = false;
+            const modal = document.querySelector('.vip-qr-settings-modal');
+            if (modal) {
+                modal.style.cursor = 'move';
+            }
+        }
+    });
+
     // 事件监听
     document.addEventListener('mouseenter', (event) => {
         const targetElement = event.target.closest('[href]');
