@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>淘宝链接跳转</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#ff6a00,#ee0979);min-height:100vh;padding:20px}
+        .container{max-width:500px;margin:0 auto;background:#fff;border-radius:16px;padding:30px 20px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+        h1{text-align:center;color:#333;margin-bottom:8px}
+        .subtitle{text-align:center;color:#999;font-size:14px;margin-bottom:30px}
+        .input-group{margin-bottom:20px}
+        label{display:block;color:#666;font-size:14px;margin-bottom:8px}
+        textarea{width:100%;min-height:100px;padding:12px;border:2px solid #e0e0e0;border-radius:12px;font-size:14px;resize:vertical}
+        textarea:focus{outline:none;border-color:#ff6a00}
+        .btn{width:100%;padding:16px;background:linear-gradient(135deg,#ff6a00,#ee0979);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+        .tips{color:#999;font-size:12px;margin-top:6px}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 淘宝跳转</h1>
+        <p class="subtitle">粘贴链接，一键打开App</p>
+        
+        <div class="input-group">
+            <textarea id="urlInput" placeholder="https://detail.tmall.com/item.htm?id=xxx"></textarea>
+            <p class="tips">支持天猫/淘宝链接或商品ID</p>
+        </div>
+        
+        <button class="btn" onclick="jump()">打开淘宝 App</button>
+    </div>
+
+    <script>
+        function getId(url) {
+            const m = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/) || url.match(/^(\d{10,15})$/);
+            return m ? m[1] : null;
+        }
+        
+        function jump() {
+            const input = document.getElementById('urlInput').value.trim();
+            const id = getId(input);
+            if (!id) {alert('无法识别商品ID');return;}
+            
+            const isTmall = input.includes('tmall');
+            const appUrl = isTmall 
+                ? `tmall://page.tm/itemDetail?itemId=${id}`
+                : `taobao://h5.m.taobao.com/awp/core/detail.htm?id=${id}`;
+            
+            window.location.href = appUrl;
+            
+            setTimeout(() => {
+                if (confirm('App未打开？')) {
+                    window.location.href = isTmall 
+                        ? `https://detail.tmall.com/item.htm?id=${id}`
+                        : `https://item.taobao.com/item.htm?id=${id}`;
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
