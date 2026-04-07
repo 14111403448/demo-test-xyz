@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>淘宝链接跳转</title>
+    <title>淘宝跳转</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#ff6a00,#ee0979);min-height:100vh;padding:20px}
@@ -24,36 +24,40 @@
         <p class="subtitle">粘贴链接，一键打开App</p>
         
         <div class="input-group">
-            <textarea id="urlInput" placeholder="https://detail.tmall.com/item.htm?id=xxx"></textarea>
-            <p class="tips">支持天猫/淘宝链接或商品ID</p>
+            <textarea id="urlInput" placeholder="https://detail.tmall.com/item.htm?id=xxx&skuId=xxx"></textarea>
+            <p class="tips">支持天猫/淘宝链接，会提取id和skuId</p>
         </div>
         
         <button class="btn" onclick="jump()">打开淘宝 App</button>
     </div>
 
     <script>
-        function getId(url) {
-            const m = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/) || url.match(/^(\d{10,15})$/);
-            return m ? m[1] : null;
+        function getParams(url) {
+            const idMatch = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/);
+            const skuMatch = url.match(/[?&]skuId=(\d+)/);
+            return {
+                id: idMatch ? idMatch[1] : null,
+                skuId: skuMatch ? skuMatch[1] : null
+            };
         }
         
         function jump() {
             const input = document.getElementById('urlInput').value.trim();
-            const id = getId(input);
-            if (!id) {alert('无法识别商品ID');return;}
+            const { id, skuId } = getParams(input);
             
-            const isTmall = input.includes('tmall');
-            const appUrl = isTmall 
-                ? `tmall://page.tm/itemDetail?itemId=${id}`
-                : `taobao://h5.m.taobao.com/awp/core/detail.htm?id=${id}`;
+            if (!id) { alert('未找到商品ID'); return; }
             
-            window.location.href = appUrl;
+            // 构造deeplink，同时带上id和skuId
+            let deeplink = `taobao://h5.m.taobao.com/awp/core/detail.htm?id=${id}`;
+            if (skuId) deeplink += `&skuId=${skuId}`;
+            
+            window.location.href = deeplink;
             
             setTimeout(() => {
                 if (confirm('App未打开？')) {
-                    window.location.href = isTmall 
-                        ? `https://detail.tmall.com/item.htm?id=${id}`
-                        : `https://item.taobao.com/item.htm?id=${id}`;
+                    let webUrl = `https://item.taobao.com/item.htm?id=${id}`;
+                    if (skuId) webUrl += `&skuId=${skuId}`;
+                    window.location.href = webUrl;
                 }
             }, 3000);
         }
