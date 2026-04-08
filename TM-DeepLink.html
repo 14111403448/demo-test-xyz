@@ -6,16 +6,23 @@
     <title>淘宝跳转</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#ff6a00,#ee0979);min-height:100vh;padding:20px}
-        .container{max-width:500px;margin:0 auto;background:#fff;border-radius:16px;padding:30px 20px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
-        h1{text-align:center;color:#333;margin-bottom:8px}
-        .subtitle{text-align:center;color:#999;font-size:14px;margin-bottom:30px}
-        .input-group{margin-bottom:20px}
-        label{display:block;color:#666;font-size:14px;margin-bottom:8px}
-        textarea{width:100%;min-height:100px;padding:12px;border:2px solid #e0e0e0;border-radius:12px;font-size:14px;resize:vertical}
-        textarea:focus{outline:none;border-color:#ff6a00}
-        .btn{width:100%;padding:16px;background:linear-gradient(135deg,#ff6a00,#ee0979);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
-        .tips{color:#999;font-size:12px;margin-top:6px}
+        body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+        .container{width:100%;max-width:420px;background:#fff;border-radius:20px;padding:32px 28px;box-shadow:0 8px 32px rgba(0,0,0,.08)}
+        h1{text-align:center;color:#1a1a1a;font-size:24px;font-weight:600;margin-bottom:4px}
+        .subtitle{text-align:center;color:#8c8c8c;font-size:13px;margin-bottom:28px}
+        .input-wrapper{position:relative;margin-bottom:20px}
+        textarea{width:100%;min-height:90px;padding:14px;padding-right:60px;border:1px solid #e8e8e8;border-radius:12px;font-size:14px;resize:none;transition:border-color 0.2s}
+        textarea:focus{outline:none;border-color:#1a1a1a}
+        .paste-btn{position:absolute;top:50%;right:12px;transform:translateY(-50%);padding:6px 12px;background:#f5f5f5;border:none;border-radius:6px;font-size:12px;color:#666;cursor:pointer;transition:all 0.2s}
+        .paste-btn:hover{background:#e8e8e8}
+        .tips{color:#8c8c8c;font-size:12px;margin-bottom:20px}
+        .mode-label{color:#8c8c8c;font-size:12px;margin-bottom:10px}
+        .mode-options{display:flex;gap:10px;margin-bottom:24px}
+        .mode-option{flex:1;padding:14px 10px;text-align:center;background:#fafafa;border:1px solid #e8e8e8;border-radius:10px;font-size:13px;color:#666;cursor:pointer;transition:all 0.2s}
+        .mode-option.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+        .mode-option small{display:block;font-size:11px;margin-top:4px;opacity:0.6}
+        .btn{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.2s}
+        .btn:hover{opacity:0.85}
     </style>
 </head>
 <body>
@@ -23,15 +30,50 @@
         <h1>🛒 淘宝跳转</h1>
         <p class="subtitle">粘贴链接，一键打开App</p>
         
-        <div class="input-group">
-            <textarea id="urlInput" placeholder="https://detail.tmall.com/item.htm?id=xxx&skuId=xxx"></textarea>
-            <p class="tips">支持天猫/淘宝链接，会提取id和skuId</p>
+        <div class="input-wrapper">
+            <textarea id="urlInput" placeholder="https://detail.tmall.com/item.htm?id=xxx"></textarea>
+            <button class="paste-btn" onclick="pasteAndClear()">粘贴</button>
+        </div>
+        
+        <p class="tips">支持天猫/淘宝链接，会提取id和skuId</p>
+        
+        <p class="mode-label">淘宝链接模式</p>
+        <div class="mode-options">
+            <div class="mode-option active" data-mode="1">
+                模式1
+                <small>直接跳转</small>
+            </div>
+            <div class="mode-option" data-mode="2">
+                模式2
+                <small>H5中间页</small>
+            </div>
         </div>
         
         <button class="btn" onclick="jump()">打开淘宝 App</button>
     </div>
 
     <script>
+        let taobaoMode = 1;
+
+        // 粘贴并清空
+        async function pasteAndClear() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('urlInput').value = text;
+            } catch (err) {
+                alert('粘贴失败，请手动粘贴');
+            }
+        }
+
+        // 淘宝模式切换
+        document.querySelectorAll('.mode-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.mode-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                taobaoMode = parseInt(opt.dataset.mode);
+            });
+        });
+
         function getParams(url) {
             const idMatch = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/);
             const skuMatch = url.match(/[?&]skuId=(\d+)/);
@@ -40,26 +82,22 @@
                 skuId: skuMatch ? skuMatch[1] : null
             };
         }
-        
+
         function jump() {
             const input = document.getElementById('urlInput').value.trim();
             const { id, skuId } = getParams(input);
-            
+
             if (!id) { alert('未找到商品ID'); return; }
-            
-            // 构造deeplink，同时带上id和skuId
-            let deeplink = `taobao://h5.m.taobao.com/awp/core/detail.htm?id=${id}`;
+
+            let deeplink = '';
+            if (taobaoMode === 1) {
+                deeplink = `taobao://${input.match(/detail\.(tmall|taobao)\.com[^\s]*/)?.[0]?.replace('https://', '')}`;
+            } else {
+                deeplink = `taobao://h5.m.taobao.com/awp/core/detail.htm?id=${id}`;
+            }
             if (skuId) deeplink += `&skuId=${skuId}`;
-            
+
             window.location.href = deeplink;
-            
-            setTimeout(() => {
-                if (confirm('App未打开？')) {
-                    let webUrl = `https://item.taobao.com/item.htm?id=${id}`;
-                    if (skuId) webUrl += `&skuId=${skuId}`;
-                    window.location.href = webUrl;
-                }
-            }, 3000);
         }
     </script>
 </body>
