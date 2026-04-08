@@ -87,34 +87,41 @@
         });
 
         function getParams(url) {
-            const idMatch = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/);
+            // 淘宝/天猫
+            const tbIdMatch = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/);
             const skuMatch = url.match(/[?&]skuId=(\d+)/);
+            // 京东
+            const jdMatch = url.match(/item\.jd\.com\/(\d+)/);
+            
             return {
-                id: idMatch ? idMatch[1] : null,
-                skuId: skuMatch ? skuMatch[1] : null
+                id: tbIdMatch ? tbIdMatch[1] : null,
+                skuId: skuMatch ? skuMatch[1] : null,
+                jdId: jdMatch ? jdMatch[1] : null
             };
         }
 
         function jump() {
             const input = document.getElementById('urlInput').value.trim();
-            const { id, skuId } = getParams(input);
-            
-            if (!id) { alert('未找到商品ID'); return; }
-            
-            let deeplink = '';
+            const { id, skuId, jdId } = getParams(input);
             
             if (currentApp === 'taobao') {
+                if (!id) { alert('未找到商品ID'); return; }
+                
+                let deeplink = '';
                 if (taobaoMode === 1) {
                     deeplink = `taobao://${input.match(/detail\.(tmall|taobao)\.com[^\s]*/)?.[0]?.replace('https://', '')}`;
                 } else {
                     deeplink = `taobao://h5.m.taobao.com/awp/core/detail.htm?id=${id}`;
                 }
                 if (skuId) deeplink += `&skuId=${skuId}`;
+                
+                window.location.href = deeplink;
             } else if (currentApp === 'jd') {
-                deeplink = `openApp.jdMobile://virtual?params=%7B%22category%22:%22jump%22,%22des%22:%22productDetail%22,%22skuId%22:%22${id}%22%7D`;
+                if (!jdId) { alert('未找到京东商品ID'); return; }
+                
+                const deeplink = `openApp.jdMobile://virtual?params=%7B%22category%22:%22jump%22,%22des%22:%22productDetail%22,%22skuId%22:%22${jdId}%22%7D`;
+                window.location.href = deeplink;
             }
-            
-            window.location.href = deeplink;
         }
     </script>
 </body>
