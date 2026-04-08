@@ -32,7 +32,7 @@
         
         <div class="input-wrapper">
             <textarea id="urlInput" placeholder="https://detail.tmall.com/item.htm?id=xxx"></textarea>
-            <button class="paste-btn" onclick="pasteAndClear()">粘贴</button>
+            <button class="paste-btn" onclick="clearInput()">清空</button>
         </div>
         
         <p class="tips">支持天猫/淘宝链接，会提取id和skuId</p>
@@ -55,14 +55,9 @@
     <script>
         let taobaoMode = 1;
 
-        // 粘贴并清空
-        async function pasteAndClear() {
-            try {
-                const text = await navigator.clipboard.readText();
-                document.getElementById('urlInput').value = text;
-            } catch (err) {
-                alert('粘贴失败，请手动粘贴');
-            }
+        // 清空输入框
+        function clearInput() {
+            document.getElementById('urlInput').value = '';
         }
 
         // 淘宝模式切换
