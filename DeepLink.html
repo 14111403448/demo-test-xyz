@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepLink</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+        .container{width:100%;max-width:420px;background:#fff;border-radius:20px;padding:32px 28px;box-shadow:0 8px 32px rgba(0,0,0,.08)}
+        h1{text-align:center;color:#1a1a1a;font-size:24px;font-weight:600;margin-bottom:4px}
+        .subtitle{text-align:center;color:#8c8c8c;font-size:13px;margin-bottom:28px}
+        .app-tabs{display:flex;gap:8px;margin-bottom:24px;background:#f5f5f5;padding:4px;border-radius:12px}
+        .app-tab{flex:1;padding:10px;text-align:center;background:transparent;border:none;border-radius:10px;font-size:14px;font-weight:500;color:#666;cursor:pointer;transition:all 0.2s}
+        .app-tab.active{background:#fff;color:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+        textarea{width:100%;min-height:90px;padding:14px;border:1px solid #e8e8e8;border-radius:12px;font-size:14px;resize:none;transition:border-color 0.2s}
+        textarea:focus{outline:none;border-color:#1a1a1a}
+        .mode-group{margin:20px 0 24px;display:none}
+        .mode-group.show{display:block}
+        .mode-label{color:#8c8c8c;font-size:12px;margin-bottom:10px}
+        .mode-options{display:flex;gap:10px}
+        .mode-option{flex:1;padding:14px 10px;text-align:center;background:#fafafa;border:1px solid #e8e8e8;border-radius:10px;font-size:13px;color:#666;cursor:pointer;transition:all 0.2s}
+        .mode-option.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+        .mode-option small{display:block;font-size:11px;margin-top:4px;opacity:0.6}
+        .btn{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.2s}
+        .btn:hover{opacity:0.85}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 DeepLink</h1>
+        <p class="subtitle">粘贴链接，一键打开App</p>
+        
+        <div class="app-tabs">
+            <button class="app-tab active" data-app="taobao">淘宝</button>
+            <button class="app-tab" data-app="jd">京东</button>
+        </div>
+        
+        <div class="input-group">
+            <textarea id="urlInput" placeholder="粘贴商品链接"></textarea>
+        </div>
+        
+        <div class="mode-group show" id="taobaoMode">
+            <p class="mode-label">淘宝链接模式</p>
+            <div class="mode-options">
+                <div class="mode-option active" data-mode="1">
+                    模式1
+                    <small>直接跳转</small>
+                </div>
+                <div class="mode-option" data-mode="2">
+                    模式2
+                    <small>H5中间页</small>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn" onclick="jump()">打开 App</button>
+    </div>
+
+    <script>
+        let currentApp = 'taobao';
+        let taobaoMode = 1;
+
+        // App切换
+        document.querySelectorAll('.app-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentApp = tab.dataset.app;
+                
+                const modeGroup = document.getElementById('taobaoMode');
+                if (currentApp === 'taobao') {
+                    modeGroup.classList.add('show');
+                } else {
+                    modeGroup.classList.remove('show');
+                }
+            });
+        });
+
+        // 淘宝模式切换
+        document.querySelectorAll('.mode-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.mode-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                taobaoMode = parseInt(opt.dataset.mode);
+            });
+        });
+
+        function getParams(url) {
+            const idMatch = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/);
+            const skuMatch = url.match(/[?&]skuId=(\d+)/);
+            return {
+                id: idMatch ? idMatch[1] : null,
+                skuId: skuMatch ? skuMatch[1] : null
+            };
+        }
+
+        function jump() {
+            const input = document.getElementById('urlInput').value.trim();
+            const { id, skuId } = getParams(input);
+            
+            if (!id) { alert('未找到商品ID'); return; }
+            
+            let deeplink = '';
+            
+            if (currentApp === 'taobao') {
+                if (taobaoMode === 1) {
+                    deeplink = `taobao://${input.match(/detail\.(tmall|taobao)\.com[^\s]*/)?.[0]?.replace('https://', '')}`;
+                } else {
+                    deeplink = `taobao://h5.m.taobao.com/awp/core/detail.htm?id=${id}`;
+                }
+                if (skuId) deeplink += `&skuId=${skuId}`;
+            } else if (currentApp === 'jd') {
+                deeplink = `openApp.jdMobile://virtual?params=%7B%22category%22:%22jump%22,%22des%22:%22productDetail%22,%22skuId%22:%22${id}%22%7D`;
+            }
+            
+            window.location.href = deeplink;
+        }
+    </script>
+</body>
+</html>
