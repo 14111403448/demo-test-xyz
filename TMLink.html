@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天猫链接转换工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-convert {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-convert:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-copy {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-copy:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-copy.copied {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .output-group {
+            margin-top: 20px;
+        }
+        
+        .hint {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        
+        .paste-hint {
+            text-align: center;
+            color: #667eea;
+            font-size: 13px;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 天猫链接转换工具</h1>
+        
+        <div class="paste-hint">💡 在输入框按 Ctrl+V 粘贴链接后自动转化</div>
+        
+        <div class="input-group">
+            <label for="inputLink">输入天猫商品链接：</label>
+            <input type="text" id="inputLink" placeholder="https://detail.tmall.com/item.htm?id=xxxxx&skuId=xxxxx">
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn-convert" onclick="convertLink()">🔄 转化</button>
+            <button class="btn-copy" onclick="clearAll()">🗑️ 清空</button>
+            <button class="btn-copy" id="copyBtn" onclick="copyLink()">📋 复制</button>
+        </div>
+        
+        <div class="output-group">
+            <label for="outputLink">转换后的链接：</label>
+            <input type="text" id="outputLink" placeholder="转换后的链接将显示在这里" readonly>
+        </div>
+        
+        <div class="hint">
+            目前仅支持天猫商品链接转换
+        </div>
+    </div>
+    
+    <script>
+        // 粘贴后自动转化
+        document.getElementById('inputLink').addEventListener('paste', function(e) {
+            // 延迟执行，等粘贴内容写入输入框后
+            setTimeout(convertLink, 50);
+        });
+        
+        // 回车触发转换
+        document.getElementById('inputLink').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertLink();
+            }
+        });
+        
+        function convertLink() {
+            const input = document.getElementById('inputLink').value.trim();
+            const output = document.getElementById('outputLink');
+            
+            if (!input) {
+                return;
+            }
+            
+            const idMatch = input.match(/[?&]id=(\d+)/);
+            const skuMatch = input.match(/[?&]skuId=(\d+)/);
+            
+            if (!idMatch) {
+                alert('链接格式错误！未找到商品ID');
+                return;
+            }
+            
+            const id = idMatch[1];
+            const skuId = skuMatch ? skuMatch[1] : '';
+            
+            const mi_id = '0000NynrT6ifY-YFpU0IpL_3BA97CujTS7-BE8s1yo6LfFE';
+            const priceTId = '214783e717791754761888726e10d2';
+            const utparam = encodeURIComponent('{"aplus_abtest":"a186a6babe839b9ea3928bab6a992964"}');
+            
+            let newLink = `https://detail.tmall.com/item.htm?abbucket=12&id=${id}&mi_id=${mi_id}&ns=1&priceTId=${priceTId}`;
+            
+            if (skuId) {
+                newLink += `&skuId=${skuId}`;
+            }
+            
+            newLink += `&spm=a21n57.1.hoverItem.10&utparam=${utparam}&xxc=taobaoSearch`;
+            
+            output.value = newLink;
+        }
+        
+        function clearAll() {
+            document.getElementById('inputLink').value = '';
+            document.getElementById('outputLink').value = '';
+            document.getElementById('inputLink').focus();
+        }
+        
+        function copyLink() {
+            const output = document.getElementById('outputLink');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            if (!output.value) {
+                alert('请先转化链接！');
+                return;
+            }
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(output.value).then(() => {
+                    copyBtn.textContent = '✅ 已复制';
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.textContent = '📋 复制';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    fallbackCopy(output);
+                });
+            } else {
+                fallbackCopy(output);
+            }
+        }
+        
+        function fallbackCopy(input) {
+            input.select();
+            input.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy');
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.textContent = '✅ 已复制';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = '📋 复制';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                alert('复制失败，请手动复制');
+            }
+        }
+    </script>
+</body>
+</html>
