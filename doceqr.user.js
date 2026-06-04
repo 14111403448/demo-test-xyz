@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         文档链接二维码生成器
 // @namespace    Violentmonkey Scripts
-// @version      2.0
+// @version      2.1
 // @description  文档页按Ctrl+C生成二维码，支持自动模式（优先原始链接，失败自动切换优化链接），支持天猫国际、京东、拼多多、得物链接优化，二维码图片可拖动+临时消失开关+自定义位置
 // @author       LCJ
 // @match        https://*.corp.vipshop.com/*
@@ -28,6 +28,7 @@
     let isDraggingModal = false;
     let modalOffsetX = 0;
     let modalOffsetY = 0;
+    let isMouseCheckRunning = false;
 
     const BASE_SIZE = 200;
     const JUDGE_RANGE_SCALE = 1.2;
@@ -507,32 +508,41 @@
 
     // 优化的鼠标位置检查
     function checkMousePosition() {
+        if (isMouseCheckRunning) return;
+        isMouseCheckRunning = true;
+
         // 持续循环检查，确保功能正常工作
-        requestAnimationFrame(checkMousePosition);
-        
-        if (!qrContainer || isSettingOpen) return;
-        const config = ConfigModule.getBaseConfig();
-        if (!config.enableHoverHide) return;
-        
-        if (isAltPressed) {
-            clearTimeout(hideTimer);
-            clearTimeout(showTimer);
-            qrContainer.classList.remove('hidden');
-            return;
-        }
-        
-        const judgeBox = qrContainer.querySelector('.vip-qr-judge-box');
-        const judgeRect = judgeBox.getBoundingClientRect();
-        const isInJudgeArea = mouseX >= judgeRect.left && mouseX <= judgeRect.right && 
-                             mouseY >= judgeRect.top && mouseY <= judgeRect.bottom;
-        
-        if (isInJudgeArea) {
-            clearTimeout(showTimer);
-            hideTimer = setTimeout(() => qrContainer.classList.add('hidden'), HIDE_DELAY);
-        } else {
-            clearTimeout(hideTimer);
-            showTimer = setTimeout(() => qrContainer.classList.remove('hidden'), SHOW_DELAY);
-        }
+        const loop = () => {
+            requestAnimationFrame(loop);
+
+            if (!qrContainer || isSettingOpen) return;
+            const config = ConfigModule.getBaseConfig();
+            if (!config.enableHoverHide) return;
+
+            if (isAltPressed) {
+                clearTimeout(hideTimer);
+                clearTimeout(showTimer);
+                qrContainer.classList.remove('hidden');
+                return;
+            }
+
+            const judgeBox = qrContainer.querySelector('.vip-qr-judge-box');
+            if (!judgeBox) return;
+
+            const judgeRect = judgeBox.getBoundingClientRect();
+            const isInJudgeArea = mouseX >= judgeRect.left && mouseX <= judgeRect.right &&
+                                 mouseY >= judgeRect.top && mouseY <= judgeRect.bottom;
+
+            if (isInJudgeArea) {
+                clearTimeout(showTimer);
+                hideTimer = setTimeout(() => qrContainer.classList.add('hidden'), HIDE_DELAY);
+            } else {
+                clearTimeout(hideTimer);
+                showTimer = setTimeout(() => qrContainer.classList.remove('hidden'), SHOW_DELAY);
+            }
+        };
+
+        requestAnimationFrame(loop);
     }
 
     function clearAllTimers() {
