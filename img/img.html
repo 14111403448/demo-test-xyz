@@ -1,1 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片链接预览工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-0 m-0">
+    <!-- 输入区域固定在顶部 -->
+    <div class="bg-white shadow-md p-4 sticky top-0 z-10">
+        <div class="max-w-5xl mx-auto">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">图片链接预览工具</h1>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input 
+                    type="url" 
+                    id="imgLink" 
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                >
+                <button id="queryBtn" class="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 text-lg font-medium">查询</button>
+                <button id="clearBtn" class="px-8 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors duration-300 text-lg font-medium">清空</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- 提示信息区域 -->
+    <div id="tipMsg" class="text-center py-3 text-gray-600 hidden"></div>
+
+    <!-- 图片预览区域（占满整个页面剩余空间） -->
+    <div id="previewArea" class="flex justify-center items-center min-h-[calc(100vh-150px)] p-4 hidden">
+        <img id="previewImg" class="max-w-full max-h-[calc(100vh-200px)] object-contain" alt="图片预览">
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const imgLinkInput = document.getElementById('imgLink');
+        const queryBtn = document.getElementById('queryBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const previewArea = document.getElementById('previewArea');
+        const previewImg = document.getElementById('previewImg');
+        const tipMsg = document.getElementById('tipMsg');
+
+        // 显示提示信息
+        function showTip(message, isError = false) {
+            if (!message) {
+                tipMsg.classList.add('hidden');
+                return;
+            }
+            tipMsg.textContent = message;
+            tipMsg.classList.remove('hidden', 'text-red-500', 'text-green-500');
+            tipMsg.classList.add(isError ? 'text-red-500' : 'text-green-500');
+        }
+
+        // 预览图片函数
+        function previewImage(url) {
+            // 隐藏之前的提示和预览区
+            previewArea.classList.add('hidden');
+            
+            // 设置图片链接
+            previewImg.src = url;
+            
+            // 图片加载成功
+            previewImg.onload = function() {
+                previewArea.classList.remove('hidden');
+                showTip('图片预览成功');
+            }
+
+            // 图片加载失败
+            previewImg.onerror = function() {
+                showTip('图片加载失败，请检查链接是否有效', true);
+            }
+        }
+
+        // 清空函数
+        function clearInput() {
+            imgLinkInput.value = '';
+            previewArea.classList.add('hidden');
+            showTip(''); // 清空提示信息
+            imgLinkInput.focus(); // 聚焦到输入框
+        }
+
+        // 点击查询按钮事件
+        queryBtn.addEventListener('click', function() {
+            const link = imgLinkInput.value.trim();
+            
+            if (!link) {
+                showTip('请输入图片链接', true);
+                previewArea.classList.add('hidden');
+                return;
+            }
+
+            // 简单验证链接格式
+            const urlRegex = /^(https?:\/\/).+(\.(png|jpg|jpeg|gif|bmp|webp))$/i;
+            if (!urlRegex.test(link)) {
+                showTip('请输入有效的图片链接（支持png、jpg、jpeg等格式）', true);
+                previewArea.classList.add('hidden');
+                return;
+            }
+
+            previewImage(link);
+        });
+
+        // 点击清空按钮事件
+        clearBtn.addEventListener('click', clearInput);
+
+        // 支持回车键查询
+        imgLinkInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                queryBtn.click();
+            }
+        });
+
+        // 支持ESC键清空
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                clearInput();
+            }
+        });
+    </script>
+</body>
+</html>
