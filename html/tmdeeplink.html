@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>淘宝跳转</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+        .container{width:100%;max-width:420px;background:#fff;border-radius:20px;padding:32px 28px;box-shadow:0 8px 32px rgba(0,0,0,.08)}
+        h1{text-align:center;color:#1a1a1a;font-size:24px;font-weight:600;margin-bottom:4px}
+        .subtitle{text-align:center;color:#8c8c8c;font-size:13px;margin-bottom:28px}
+        .input-wrapper{position:relative;margin-bottom:20px}
+        textarea{width:100%;min-height:90px;padding:14px;padding-right:60px;border:1px solid #e8e8e8;border-radius:12px;font-size:14px;resize:none;transition:border-color 0.2s}
+        textarea:focus{outline:none;border-color:#1a1a1a}
+        .paste-btn{position:absolute;top:50%;right:12px;transform:translateY(-50%);padding:6px 12px;background:#f5f5f5;border:none;border-radius:6px;font-size:12px;color:#666;cursor:pointer;transition:all 0.2s}
+        .paste-btn:hover{background:#e8e8e8}
+        .tips{color:#8c8c8c;font-size:12px;margin-bottom:24px}
+        .btn{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.2s}
+        .btn:hover{opacity:0.85}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 淘宝跳转</h1>
+        <p class="subtitle">粘贴链接，一键打开App</p>
+        
+        <div class="input-wrapper">
+            <textarea id="urlInput" placeholder="https://detail.tmall.com/item.htm?id=xxx"></textarea>
+            <button class="paste-btn" onclick="clearInput()">清空</button>
+        </div>
+        
+        <p class="tips">支持天猫/淘宝链接，自动提取商品ID</p>
+        
+        <button class="btn" onclick="jump()">打开淘宝 App</button>
+    </div>
 
+    <script>
+        // 清空输入框
+        function clearInput() {
+            document.getElementById('urlInput').value = '';
+        }
+
+        // 从URL中提取商品ID
+        function getId(url) {
+            const match = url.match(/[?&]id=(\d+)/) || url.match(/item\/(\d+)/);
+            return match ? match[1] : null;
+        }
+
+        function jump() {
+            const input = document.getElementById('urlInput').value.trim();
+            const id = getId(input);
+
+            if (!id) { alert('未找到商品ID'); return; }
+
+            const url = input.replace(/^https?:\/\//, '');
+            window.location.href = `taobao://${url}`;
+        }
+    </script>
+</body>
+</html>
