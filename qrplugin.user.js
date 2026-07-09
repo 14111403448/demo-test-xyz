@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         全局链接二维码生成器
 // @namespace    http://tampermonkey.net/
-// @version      2.4
+// @version      2.4.1
 // @description  鼠标悬停带href属性的元素显示二维码，支持得物链接转换、大小/位置/链接模式设置，按+号放大二维码至屏幕60%高度
 // @grant        GM_addStyle
 // @grant        GM_setValue
@@ -19,7 +19,7 @@
 
     // 核心配置（默认：1档、右下角、原始链接）
     // 配置拉黑元素，当页面有不需要显示二维码的地方，可以在下面一行代码添加。
-    const elementBlacklist = ["div.el-scrollbar__view", "div.onedp-app-sidebar", "div.onedp-app-header-inner"];
+    const elementBlacklist = ["div.el-scrollbar__view", "div.onedp-app-sidebar", "div.onedp-app-header-inner","div.bg-sidebar"];
     const qrCache = new Map();
     let currentLinkElement = null;
     const offset = 10;
