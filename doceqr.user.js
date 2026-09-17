@@ -10,8 +10,8 @@
 // @grant        GM_getValue
 // @require      https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js
 // @icon         https://img.alicdn.com/imgextra/i3/O1CN01CkZbKp27arsx4ktdK_!!6000000007814-2-tps-96-96.png
-// @downloadURL  https://www.lcjscript.asia/doceqr.user.js
-// @updateURL    https://www.lcjscript.asia/doceqr.user.js
+// @downloadURL  https://14111403448.github.io/demo-test-xyz/doceqr.user.js
+// @updateURL    https://14111403448.github.io/demo-test-xyz/doceqr.user.js
 // ==/UserScript==
 (function() {
     'use strict';
