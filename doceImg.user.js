@@ -6,8 +6,8 @@
 // @author       LCJ
 // @match        https://*.corp.vipshop.com/*
 // @grant        none
-// @downloadURL  https://www.lcjscript.asia/doceImg.user.js
-// @updateURL    https://www.lcjscript.asia/doceImg.user.js
+// @downloadURL  https://14111403448.github.io/demo-test-xyz/doceImg.user.js
+// @updateURL    https://14111403448.github.io/demo-test-xyz/doceImg.user.js
 // @run-at       document-end
 // ==/UserScript==
 
