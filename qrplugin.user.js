@@ -10,8 +10,8 @@
 // @match        https://*.vip.vip.com/*
 // @icon         https://cdn-icons.flaticon.com/svg/3917033.svg
 // @require      https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js
-// @downloadURL  https://www.lcjscript.asia/qrplugin.user.js
-// @updateURL    https://www.lcjscript.asia/qrplugin.user.js
+// @downloadURL  https://14111403448.github.io/demo-test-xyz/qrplugin.user.js
+// @updateURL    https://14111403448.github.io/demo-test-xyz/qrplugin.user.js
 // ==/UserScript==
 
 (function() {
